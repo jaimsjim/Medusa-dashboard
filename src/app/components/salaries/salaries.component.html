@@ -1,0 +1,212 @@
+<div class="container">
+  <div class="reglist">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Empleado</th>
+          <th>Salario Mensual</th>
+          <th>Método de Pago</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let salary of salaries; let i = index">
+          <th scope="row">{{ salary.salary_id }}</th>
+          <td>{{ getEmployeeName(salary.employee_id) }}</td>
+          <td>{{ getMonthlyNumber(salary.monthly_salary) }}</td>
+          <td>{{ getPaymentMethodName(salary.payment_method_id) }}</td>
+          <td>
+            <button type="button" class="btn btn-info" (click)="onEdit(i)">
+              Editar
+            </button>
+          </td>
+          <td>
+            <!-- Modal -->
+            <div
+              class="modal fade"
+              [id]="'salaryModal' + i"
+              tabindex="-1"
+              role="dialog"
+              aria-labelledby="salaryModalLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="salaryModalLabel">
+                      Eliminar Salario
+                    </h5>
+                    <button
+                      type="button"
+                      class="close"
+                      data-dismiss="modal"
+                      aria-label="Close"
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    Estás seguro de que deseas eliminar el salario del empleado:
+                    {{ getEmployeeName(salary.employee_id) }}
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      data-dismiss="modal"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      (click)="onDelete(salary.salary_id)"
+                      data-dismiss="modal"
+                    >
+                      Eliminar Empleado
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="btn btn-danger"
+              data-toggle="modal"
+              [attr.data-target]="'#salaryModal' + i"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="text-right">
+      <button type="submit" class="btn btn-primary" (click)="onNew()">
+        Nuevo Salario
+      </button>
+    </div>
+  </div>
+  <br />
+  <div class="regentry" *ngIf="showNew">
+    <form (ngSubmit)="onSave()">
+      <div class="form-group row">
+        <label for="employeeSalary-input" class="col-3 col-form-label"
+          >Empleado</label
+        >
+        <div class="col-9" *ngIf="isEdit">
+          <input
+            class="form-control"
+            type="text"
+            value="{{ getEmployeeName(regModel.employee_id) }}"
+            name="employeeSalaryEdit"
+            disabled
+          />
+        </div>
+        <div
+          class="col-9 dropdown"
+          ngbDropdown
+          myDrop="ngbDropdown"
+          *ngIf="!isEdit"
+        >
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            id="dropdownManual"
+            name="dropdownManual"
+            ngbDropdownToggle
+            [(ngModel)]="regModel.employee_id"
+          >
+            {{
+              regModel.employee_id
+                ? getEmployeeName(regModel.employee_id)
+                : "Seleccionar Empleado"
+            }}
+          </button>
+          <div ngbDropdownMenu aria-labelledby="dropdownManual">
+            <button type="button" class="dropdown-item" disabled>
+              Seleccionar Empleado
+            </button>
+            <button
+              type="button"
+              class="dropdown-item"
+              *ngFor="let employee of sortEmployees"
+              (click)="onChangeEmployee(employee.employee_id)"
+            >
+              {{ employee.first_Name }} {{ employee.last_Name }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label for="monthlySalary-input" class="col-3 col-form-label"
+          >Salario Mensual</label
+        >
+        <div class="col-9 d-flex">
+          <div class="input-group-prepend">
+            <span class="input-group-text">$</span>
+          </div>
+          <input
+            class="form-control"
+            type="number"
+            [(ngModel)]="regModel.monthly_salary"
+            name="monthlySalary"
+            [disabled]="sortEmployees.length <= 0 && !isEdit ? true : false"
+          />
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label for="paymentMethod-input" class="col-3 col-form-label"
+          >Método de Pago</label
+        >
+        <div class="col-9 dropdown" ngbDropdown myDrop="ngbDropdown">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            id="dropdownManual"
+            name="paymentMethod"
+            ngbDropdownToggle
+          >
+            {{
+              regModel.payment_method_id
+                ? getPaymentMethodName(regModel.payment_method_id)
+                : "Seleccionar Método de Pago"
+            }}
+          </button>
+          <div ngbDropdownMenu aria-labelledby="dropdownManual">
+            <button type="button" class="dropdown-item" disabled>
+              Seleccionar Método de Pago
+            </button>
+            <button
+              type="button"
+              class="dropdown-item"
+              *ngFor="let paymentMethod of paymentMethods"
+              (click)="onChangePaymentMethod(paymentMethod.payment_method_id)"
+            >
+              {{ paymentMethod.payment_method_name }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row col-12" *ngIf="sortEmployees.length <= 0">
+        <p class="text-danger">No hay empleados para crear salario</p>
+      </div>
+      <div class="form-group row">
+        <button type="button" class="btn btn-danger mr-2" (click)="onCancel()">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="sortEmployees.length <= 0"
+        >
+          {{ submitType }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

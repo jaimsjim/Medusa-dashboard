@@ -1,0 +1,320 @@
+<div class="container">
+  <div class="reglist">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Fecha de Inicio</th>
+          <th>Fecha de Nacimiento</th>
+          <th>Departamento</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let employee of employees; let i = index">
+          <th scope="row">{{ employee.employee_id }}</th>
+          <td>{{ employee.first_Name }}</td>
+          <td>{{ employee.last_Name }}</td>
+          <td>
+            {{
+              employee?.start_Date?.day +
+                "/" +
+                employee?.start_Date?.month +
+                "/" +
+                employee?.start_Date?.year
+            }}
+          </td>
+          <td>
+            {{
+              employee?.birthday?.day +
+                "/" +
+                employee?.birthday?.month +
+                "/" +
+                employee?.birthday?.year
+            }}
+          </td>
+          <td>{{ getDepartmentDescription(employee?.department_id) }}</td>
+          <td>
+            <button type="button" class="btn btn-info" (click)="onEdit(i)">
+              Editar
+            </button>
+          </td>
+          <td>
+            <!-- Modal -->
+
+            <div
+              class="modal fade"
+              [id]="'exampleModal' + i"
+              tabindex="-1"
+              role="dialog"
+              aria-labelledby="exampleModalLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                      Eliminar Empleado
+                    </h5>
+                    <button
+                      type="button"
+                      class="close"
+                      data-dismiss="modal"
+                      aria-label="Close"
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    Estás seguro de que deseas Eliminar el empleado:
+                    {{ employee.first_Name }} {{ employee.last_Name }}
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      data-dismiss="modal"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      (click)="onDelete(employee.employee_id)"
+                      data-dismiss="modal"
+                    >
+                      Eliminar Empleado
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="btn btn-danger"
+              data-toggle="modal"
+              [attr.data-target]="'#exampleModal' + i"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="text-right">
+      <button type="submit" class="btn btn-primary" (click)="onNew()">
+        Nuevo Empleado
+      </button>
+    </div>
+  </div>
+  <br />
+  <div class="regentry" *ngIf="showNew">
+    <form (ngSubmit)="onSave()">
+      <div class="form-group row">
+        <label for="firstname-input" class="col-3 col-form-label">Nombre</label>
+        <div class="col-9">
+          <input
+            class="form-control"
+            type="text"
+            [(ngModel)]="regModel.first_Name"
+            name="firstName"
+            id="firstName"
+            required
+            minlength="4"
+            #firstName="ngModel"
+            [class.is-invalid]="
+              firstName.invalid && (firstName.dirty || firstName.touched)
+            "
+            placeholder="Nombre del Empleado"
+          />
+          <div
+            *ngIf="firstName.invalid && (firstName.dirty || firstName.touched)"
+            class="alert p-0"
+          >
+            <div *ngIf="firstName.errors?.['required']" class="text-danger">
+              Campo requerido
+            </div>
+            <div *ngIf="firstName.errors?.['minlength']" class="text-danger">
+              Mínimo 4 caracteres
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="lastname-input" class="col-3 col-form-label"
+          >Apellido</label
+        >
+        <div class="col-9">
+          <input
+            class="form-control"
+            type="text"
+            [(ngModel)]="regModel.last_Name"
+            name="lastName"
+            id="lastName"
+            required
+            minlength="4"
+            #lastName="ngModel"
+            [class.is-invalid]="
+              lastName.invalid && (lastName.dirty || lastName.touched)
+            "
+            placeholder="Apellido del Empleado"
+          />
+          <div
+            *ngIf="lastName.invalid && (lastName.dirty || lastName.touched)"
+            class="alert p-0"
+          >
+            <div *ngIf="lastName.errors?.['required']" class="text-danger">
+              Campo requerido
+            </div>
+            <div *ngIf="lastName.errors?.['minlength']" class="text-danger">
+              Mínimo 4 caracteres
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="startDate-input" class="col-3 col-form-label"
+          >Fecha de Inicio</label
+        >
+        <div class="col-5 input-group">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="yyyy-mm-dd"
+            name="startDate"
+            [(ngModel)]="regModel.start_Date"
+            ngbDatepicker
+            #startDate="ngbDatepicker"
+            required
+            id="startDate"
+            [class.is-invalid]="
+              startDateModel.invalid &&
+              (startDateModel.dirty || startDateModel.touched)
+            "
+            #startDateModel="ngModel"
+          />
+          <button
+            class="input-group-addon"
+            (click)="startDate.toggle()"
+            type="button"
+          >
+            <img
+              src="/assets/img/calendar-icon.svg"
+              style="width: 1.2rem; height: 1rem; cursor: pointer"
+            />
+          </button>
+          <div
+            *ngIf="
+              startDateModel.invalid &&
+              (startDateModel.dirty || startDateModel.touched)
+            "
+            class="alert p-0 col-10"
+          >
+            <div
+              *ngIf="startDateModel.errors?.['required'] || startDateModel.invalid"
+              class="text-danger"
+            >
+              Campo requerido
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="dob-input" class="col-3 col-form-label"
+          >Fecha de Nacimiento</label
+        >
+        <div class="col-5 input-group">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="yyyy-mm-dd"
+            name="dob"
+            [(ngModel)]="regModel.birthday"
+            ngbDatepicker
+            #dob="ngbDatepicker"
+            required
+            id="dob"
+            [class.is-invalid]="
+              dobModel.invalid && (dobModel.dirty || dobModel.touched)
+            "
+            #dobModel="ngModel"
+          />
+          <button
+            class="input-group-addon"
+            (click)="dob.toggle()"
+            type="button"
+          >
+            <img
+              src="../../../assets/img/calendar-icon.svg"
+              style="width: 1.2rem; height: 1rem; cursor: pointer"
+            />
+          </button>
+          <div
+            *ngIf="dobModel.invalid && (dobModel.dirty || dobModel.touched)"
+            class="alert p-0 col-10"
+          >
+            <div
+              *ngIf="dobModel.errors?.['required'] || dobModel.invalid"
+              class="text-danger"
+            >
+              Campo requerido
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="department-input" class="col-3 col-form-label"
+          >Departamento</label
+        >
+        <div class="col-9 dropdown" ngbDropdown myDrop="ngbDropdown">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            id="dropdownManual"
+            name="department"
+            ngbDropdownToggle
+          >
+            {{
+              regModel.department_id
+                ? getDepartmentDescription(regModel.department_id)
+                : "Seleccionar Departamento"
+            }}
+          </button>
+          <div ngbDropdownMenu aria-labelledby="dropdownManual">
+            <button type="button" class="dropdown-item" disabled>
+              Seleccionar Departamento
+            </button>
+            <button
+              type="button"
+              class="dropdown-item"
+              *ngFor="let department of departments"
+              (click)="onChangeDepartment(department.department_id)"
+            >
+              {{ department?.department_description }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <button type="button" class="btn btn-danger mr-2" (click)="onCancel()">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="
+            firstName.invalid ||
+            lastName.invalid ||
+            startDateModel.invalid ||
+            dobModel.invalid
+          "
+        >
+          {{ submitType }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

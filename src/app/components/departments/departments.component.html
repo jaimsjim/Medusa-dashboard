@@ -1,0 +1,148 @@
+<div class="container">
+  <div class="reglist">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Departamento</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let department of departments; let i = index">
+          <th scope="row">{{ department.department_id }}</th>
+          <td>{{ department.department_description }}</td>
+          <td>
+            <button type="button" class="btn btn-info" (click)="onEdit(i)">
+              Editar
+            </button>
+          </td>
+          <td>
+            <!-- Modal -->
+
+            <div
+              class="modal fade"
+              [id]="'departmentModal' + i"
+              tabindex="-1"
+              role="dialog"
+              aria-labelledby="departmentModalLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="departmentModalLabel">
+                      Eliminar Departamento
+                    </h5>
+                    <button
+                      type="button"
+                      class="close"
+                      data-dismiss="modal"
+                      aria-label="Close"
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    Estás seguro de que deseas eliminar el departamento:
+                    {{ department.department_description }}
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      data-dismiss="modal"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      (click)="onDelete(department.department_id)"
+                      data-dismiss="modal"
+                    >
+                      Eliminar Departamento
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="btn btn-danger"
+              data-toggle="modal"
+              [attr.data-target]="'#departmentModal' + i"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="text-right">
+      <button type="submit" class="btn btn-primary" (click)="onNew()">
+        Nuevo Departamento
+      </button>
+    </div>
+  </div>
+  <br />
+  <div class="regentry" *ngIf="showNew">
+    <form (ngSubmit)="onSave()">
+      <div class="form-group row">
+        <label for="departmentDescription-input" class="col-4 col-form-label"
+          >Nombre del Departamento</label
+        >
+        <div class="col-8">
+          <input
+            class="form-control"
+            type="text"
+            [(ngModel)]="regModel.department_description"
+            name="departmentDescription"
+            id="departmentDescription"
+            required
+            minlength="4"
+            #departmentDescription="ngModel"
+            [class.is-invalid]="
+              departmentDescription.invalid &&
+              (departmentDescription.dirty || departmentDescription.touched)
+            "
+            placeholder="Departamento"
+          />
+          <div
+            *ngIf="
+              departmentDescription.invalid &&
+              (departmentDescription.dirty || departmentDescription.touched)
+            "
+            class="alert p-0"
+          >
+            <div
+              *ngIf="departmentDescription.errors?.['required']"
+              class="text-danger"
+            >
+              Campo requerido
+            </div>
+            <div
+              *ngIf="departmentDescription.errors?.['minlength']"
+              class="text-danger"
+            >
+              Mínimo 4 caracteres
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <button type="button" class="btn btn-danger mr-2" (click)="onCancel()">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="departmentDescription.invalid"
+        >
+          {{ submitType }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
